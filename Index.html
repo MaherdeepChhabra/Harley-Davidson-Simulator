@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Harley-Davidson EU Scenario Calculator</title>
+  <style>
+    :root {
+      --harley-orange: #ff6600;
+      --harley-black: #111111;
+      --harley-grey: #222222;
+      --harley-light-grey: #f5f5f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: #fdfdfd;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #fff 0, #ffd3a6 18%, var(--harley-orange) 70%, #c54800 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #111;
+      border: 2px solid #fff;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #ffb380;
+      margin: 0 0 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #444;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.04);
+      color: #ccc;
+    }
+
+    .pill span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #18c96c;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #111 0, #191919 40%, #111 100%);
+      border-radius: 14px;
+      padding: 16px 16px 18px;
+      border: 1px solid #333;
+      box-shadow: 0 14px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .card.highlight {
+      border-color: var(--harley-orange);
+      box-shadow: 0 0 0 1px rgba(255, 102, 0, 0.4), 0 18px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #bbbbbb;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #050505;
+      color: #fdfdfd;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--harley-orange);
+      box-shadow: 0 0 0 1px rgba(255, 102, 0, 0.5);
+      background: #101010;
+    }
+
+    .inputs-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .custom-scenario {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #444;
+      display: none;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #444;
+      color: #aaa;
+    }
+
+    .chip.primary {
+      border-color: var(--harley-orange);
+      color: #ffd6b3;
+      background: rgba(255, 102, 0, 0.14);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+      font-size: 0.86rem;
+    }
+
+    th,
+    td {
+      padding: 6px 6px;
+      text-align: right;
+      border-bottom: 1px solid #222;
+    }
+
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+
+    th {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 0.75rem;
+      color: #bbbbbb;
+      background: #141414;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .value-big {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .value-muted {
+      font-size: 0.8rem;
+      color: #bbbbbb;
+    }
+
+    .value-positive {
+      color: #32e676;
+    }
+
+    .value-negative {
+      color: #ff7878;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: #aaaaaa;
+      max-width: 780px;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid #444;
+      color: #bbb;
+      margin-left: 6px;
+    }
+
+    .badge.orange {
+      border-color: var(--harley-orange);
+      color: #ffd3aa;
+    }
+
+    @media (max-width: 840px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">HD</div>
+      <div>
+        <h1>Harley-Davidson EU Scenario Calculator</h1>
+        <div class="pill"><span></span> Live what-if model • SCM 479</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: INPUTS -->
+      <section class="card">
+        <h2>Global Inputs</h2>
+
+        <div class="inputs-row">
+          <div class="field">
+            <label for="units">EU Units (bikes)</label>
+            <input type="number" id="units" value="24082" min="0" />
+          </div>
+          <div class="field">
+            <label for="asp">ASP per bike ($)</label>
+            <input type="number" id="asp" value="27400" min="0" step="100" />
+          </div>
+        </div>
+
+        <div class="inputs-row">
+          <div class="field">
+            <label for="usCost">US manufacturing cost / bike ($)</label>
+            <input type="number" id="usCost" value="19900" min="0" step="100" />
+          </div>
+          <div class="field">
+            <label for="tariff">Tariff / bike on US-built bikes ($)</label>
+            <input type="number" id="tariff" value="2200" min="0" step="50" />
+          </div>
+        </div>
+
+        <h2 style="margin-top:16px;">Scenario</h2>
+
+        <div class="field">
+          <label for="scenarioSelect">Choose scenario</label>
+          <select id="scenarioSelect">
+            <option value="base">Base – US, no tariff</option>
+            <option value="usTariff">Stay in US + tariff</option>
+            <option value="europe">Move production to Europe</option>
+            <option value="brazil">Expand to Brazil</option>
+            <option value="india">Expand to India</option>
+            <option value="thailand">Shift EU production to Thailand</option>
+            <option value="custom">Custom scenario…</option>
+          </select>
+        </div>
+
+        <div id="customScenario" class="custom-scenario">
+          <div class="inputs-row">
+            <div class="field">
+              <label for="customName">Custom name</label>
+              <input type="text" id="customName" placeholder="e.g., Hybrid EU/US" />
+            </div>
+            <div class="field">
+              <label for="customMult">Cost multiplier vs US</label>
+              <input type="number" id="customMult" value="0.95" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Tariff applies?</label>
+            <select id="customTariffFlag">
+              <option value="0">No – tariff avoided</option>
+              <option value="1">Yes – tariff still applies</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chip-row">
+          <div class="chip primary">Orange = Harley margin</div>
+          <div class="chip">Δ vs “US + Tariff” shown on right</div>
+        </div>
+      </section>
+
+      <!-- RIGHT: OUTPUTS -->
+      <section class="card highlight">
+        <h2>Scenario Results</h2>
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:8px;">
+          <div>
+            <div class="value-muted">Scenario</div>
+            <div id="scenarioLabel" class="value-big">Base – US, no tariff</div>
+          </div>
+          <div>
+            <div class="value-muted">Total EU Gross Profit</div>
+            <div id="totalGp" class="value-big">$0</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Per Bike</th>
+              <th>Total (EU)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Revenue</td>
+              <td id="revPerBike"></td>
+              <td id="revTotal"></td>
+            </tr>
+            <tr>
+              <td>Manufacturing cost</td>
+              <td id="costPerBike"></td>
+              <td id="costTotal"></td>
+            </tr>
+            <tr>
+              <td>Tariff cost</td>
+              <td id="tariffPerBike"></td>
+              <td id="tariffTotal"></td>
+            </tr>
+            <tr>
+              <td><strong>Gross profit</strong></td>
+              <td id="gpPerBike"></td>
+              <td id="gpTotal"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div>
+            <span class="value-muted">Cost multiplier vs US:</span>
+            <span id="multDisplay" style="font-weight:600;margin-left:4px;">1.00×</span>
+          </div>
+          <div>
+            <span class="value-muted">Δ Gross profit vs “US + Tariff”:</span>
+            <span id="deltaVsUsTariff" class="value-big value-positive" style="font-size:1rem;margin-left:4px;">$0</span>
+            <span class="badge orange">Key comparison</span>
+          </div>
+        </div>
+
+        <p class="footer-note">
+          Notes: Model assumes all EU units are produced in the chosen region, with materials cost embedded in
+          the manufacturing cost per bike. “US + Tariff” is used as the baseline for strategic comparison.
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const inputs = {
+      units: document.getElementById("units"),
+      asp: document.getElementById("asp"),
+      usCost: document.getElementById("usCost"),
+      tariff: document.getElementById("tariff")
+    };
+
+    const scenarioSelect = document.getElementById("scenarioSelect");
+    const customBlock = document.getElementById("customScenario");
+    const customName = document.getElementById("customName");
+    const customMult = document.getElementById("customMult");
+    const customTariffFlag = document.getElementById("customTariffFlag");
+
+    const display = {
+      scenarioLabel: document.getElementById("scenarioLabel"),
+      totalGp: document.getElementById("totalGp"),
+      revPerBike: document.getElementById("revPerBike"),
+      revTotal: document.getElementById("revTotal"),
+      costPerBike: document.getElementById("costPerBike"),
+      costTotal: document.getElementById("costTotal"),
+      tariffPerBike: document.getElementById("tariffPerBike"),
+      tariffTotal: document.getElementById("tariffTotal"),
+      gpPerBike: document.getElementById("gpPerBike"),
+      gpTotal: document.getElementById("gpTotal"),
+      multDisplay: document.getElementById("multDisplay"),
+      deltaVsUsTariff: document.getElementById("deltaVsUsTariff")
+    };
+
+    // Scenario definitions: [label, costMultiplier, tariffFlag]
+    const BASE_SCENARIOS = {
+      base: ["Base – US, no tariff", 1.0, 0],
+      usTariff: ["Stay in US + Tariff", 1.0, 1],
+      europe: ["Move production to Europe", 1.10, 0],
+      brazil: ["Expand to Brazil", 0.90, 0],
+      india: ["Expand to India", 0.80, 0],
+      thailand: ["Shift EU production to Thailand", 0.85, 0]
+    };
+
+    function formatMoney(num) {
+      if (isNaN(num)) return "$0";
+      return "$" + num.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    }
+
+    function calculateScenario(multiplier, tariffFlag) {
+      const units = Number(inputs.units.value) || 0;
+      const asp = Number(inputs.asp.value) || 0;
+      const usCost = Number(inputs.usCost.value) || 0;
+      const tariffPerBike = (Number(inputs.tariff.value) || 0) * (tariffFlag ? 1 : 0);
+
+      const costPerBike = usCost * multiplier;
+      const gpPerBike = asp - costPerBike - tariffPerBike;
+
+      return {
+        units,
+        asp,
+        multiplier,
+        tariffPerBike,
+        costPerBike,
+        gpPerBike,
+        totalRevenue: asp * units,
+        totalCost: costPerBike * units,
+        totalTariff: tariffPerBike * units,
+        totalGp: gpPerBike * units
+      };
+    }
+
+    function getUsTariffBaselineGP() {
+      const baseline = calculateScenario(1.0, 1);
+      return baseline.totalGp;
+    }
+
+    function updateView() {
+      let scenarioKey = scenarioSelect.value;
+      let label, multiplier, tariffFlag;
+
+      if (scenarioKey === "custom") {
+        customBlock.style.display = "block";
+        label = customName.value.trim() || "Custom scenario";
+        multiplier = Number(customMult.value) || 1.0;
+        tariffFlag = Number(customTariffFlag.value) || 0;
+      } else {
+        customBlock.style.display = "none";
+        const def = BASE_SCENARIOS[scenarioKey];
+        label = def[0];
+        multiplier = def[1];
+        tariffFlag = def[2];
+      }
+
+      const result = calculateScenario(multiplier, tariffFlag);
+      const baselineGp = getUsTariffBaselineGP();
+      const delta = result.totalGp - baselineGp;
+
+      display.scenarioLabel.textContent = label;
+      display.totalGp.textContent = formatMoney(result.totalGp);
+      display.revPerBike.textContent = formatMoney(result.asp);
+      display.revTotal.textContent = formatMoney(result.totalRevenue);
+      display.costPerBike.textContent = formatMoney(result.costPerBike);
+      display.costTotal.textContent = formatMoney(result.totalCost);
+      display.tariffPerBike.textContent = formatMoney(result.tariffPerBike);
+      display.tariffTotal.textContent = formatMoney(result.totalTariff);
+      display.gpPerBike.textContent = formatMoney(result.gpPerBike);
+      display.gpTotal.textContent = formatMoney(result.totalGp);
+      display.multDisplay.textContent = multiplier.toFixed(2) + "×";
+
+      display.deltaVsUsTariff.textContent = formatMoney(delta);
+      display.deltaVsUsTariff.classList.remove("value-positive", "value-negative");
+      if (delta > 0) {
+        display.deltaVsUsTariff.classList.add("value-positive");
+      } else if (delta < 0) {
+        display.deltaVsUsTariff.classList.add("value-negative");
+      }
+    }
+
+    // Hook up listeners
+    Object.values(inputs).forEach((el) => el.addEventListener("input", updateView));
+    scenarioSelect.addEventListener("change", updateView);
+    customName.addEventListener("input", updateView);
+    customMult.addEventListener("input", updateView);
+    customTariffFlag.addEventListener("change", updateView);
+
+    // Initial render
+    updateView();
+  </script>
+</body>
+</html>
